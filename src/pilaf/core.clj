@@ -48,11 +48,11 @@
                               [(map #(if (symbol? %) (var-get (ns-resolve *ns* %)) %) mixins?) entity-def]
                               [[] (cons mixins? entity-def)])
         entity-def-map (map entity-attr (intermediate-entity entity-def))
-        mixins-def-map (apply merge-with concat (map #(map entity-attr %) mixins))
+        mixins-def-map (apply concat (map #(map entity-attr %) mixins))
         comped-attrs (reduce
                       (fn [m [k vs]]
                         (assoc m k (combine-args k vs)))
-                      {} (apply merge-with concat mixins-def-map entity-def-map))]
+                      {} (apply merge-with concat (concat mixins-def-map entity-def-map)))]
     `(defentity
       ~entity-name
       ~@(map #(apply list
@@ -60,14 +60,12 @@
                      (first (val %)))
              comped-attrs))))
 
-(defentity+ user
-  [test-mixin]
-  (prepare (fn [a] a))
-  (field-transforms [(pt/status-field :foo {:a 1})])
-  (table :ausdat_user)
-  (entity-fields :id :foo)
-  (belongs-to :ausdat_user {:fk :blah}))
-
+(comment (defentity+ user
+           [test-mixin]
+           (prepare (fn [a] a))
+           (field-transforms [(pt/status-field :foo {:a 1})])
+           (table :ausdat_user)
+           (entity-fields :id :foo)))
 
 (defn- quote-vals
   [m-to-quote]
@@ -85,14 +83,15 @@
   (let [mixin-map (intermediate-entity mixin-def)]
     `(def ^{:type ::mixin}
        ~mixin-name
-       ~mixin-map)))
+       (quote ~mixin-map))))
 
-(defmixin test-mixin
-  (prepare (fn [a] a))
-  (entity-fields :updated-by))
+(comment
+  (defmixin test-mixin
+    (prepare (fn [c] c))
+    (entity-fields :updated-by))
 
-(defmixin another-mixin
-  (prepare (fn [c] c))
-  (field-transforms [(pt/status-field :blah {:a 1})])
-  )
+  (defmixin another-mixin
+    (prepare (fn [c] c))
+    (field-transforms [(pt/status-field :blah {:a 1})])
+    ))
 
