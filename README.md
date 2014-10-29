@@ -88,6 +88,17 @@ Re-use the same properties across multiple entities.
   (prepare (fn [tr] (assoc tr :tran-date (now))))) ;; any prepare/transform functions will be comp'd,
                                                    ;;with the entity's func being the last func in the composition
 
+;; Use the 'with-mixins' macro to apply a mixin to multiple entities
+(defmixin create-date-field
+  (field-transforms [(date-field :create-date)]))
+
+(with-mixins [user-auditable create-date-field]
+  (defentity+ user
+    (field-transforms [(status-field :activation-status {:active 1 :inactive 2})]))
+
+  (defentity+ transaction
+    (prepare (fn [tr] (assoc tr :tran-date (now))))))
+
 ```
 
 

@@ -27,6 +27,7 @@
 
 (defmethod combine-args :entity-fields [_ args] args `[#{~@(apply concat args)}])
 
+(def ^:dynamic *common-mixins* nil)
 
 (defn- intermediate-entity
   [entity-def]
@@ -45,7 +46,10 @@
             entity map that defentity provides"
   [entity-name mixins? & entity-def]
   (let [[mixins entity-def] (if (vector? mixins?)
-                              [(map #(if (symbol? %) (var-get (ns-resolve *ns* %)) %) mixins?) entity-def]
+                              [(map #(if (symbol? %)
+                                       (var-get (ns-resolve *ns* %)) %)
+                                    (concat mixins? *common-mixins*))
+                               entity-def]
                               [[] (cons mixins? entity-def)])
         entity-def-map (map entity-attr (intermediate-entity entity-def))
         mixins-def-map (apply concat (map #(map entity-attr %) mixins))
@@ -77,3 +81,21 @@
     `(def ^{:type ::mixin}
        ~mixin-name
        (quote ~mixin-map))))
+
+
+(defmacro with-mixins
+  "Apply 1 or more mixins to a set of entities"
+  [mixins & entities]
+  `(do
+     ~@(map (fn [ent]
+              (if (= "defentity+" (name (first ent)))
+                (let [[mixins start] (if (vector? (nth ent 2))
+                                       [(vec (concat (nth ent 2) mixins)) 3]
+                                       [mixins 2])]
+                  (concat (take 2 ent)
+                          [mixins]
+                          (drop start ent)))
+                ent))
+            entities)))
+
+
