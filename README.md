@@ -2,6 +2,14 @@
 
 A collection of extensions and utilities for [Sql Korma](http://sqlkorma.com/) that we found we were rewriting for every project.
 
+## Install
+
+Very much an early version at the moment. Use at own risk!
+
+### Clojars and Leiningen
+
+[![Clojars Project](http://clojars.org/pilaf/latest-version.svg)](http://clojars.org/pilaf)
+
 ## Usage
 
 ### defentity+
@@ -88,6 +96,7 @@ Re-use the same properties across multiple entities.
 ## Authors
 
 [Yair Iny](https://github.com/icm-yairiny) - wrote the original version of these utilities
+
 [Brendan Bates](https://github.com/bbbates)
 
 ## License

@@ -60,13 +60,6 @@
                      (first (val %)))
              comped-attrs))))
 
-(comment (defentity+ user
-           [test-mixin]
-           (prepare (fn [a] a))
-           (field-transforms [(pt/status-field :foo {:a 1})])
-           (table :ausdat_user)
-           (entity-fields :id :foo)))
-
 (defn- quote-vals
   [m-to-quote]
   (reduce (fn [m [k v]] (assoc m k (quote v))) {} m-to-quote))
@@ -84,14 +77,3 @@
     `(def ^{:type ::mixin}
        ~mixin-name
        (quote ~mixin-map))))
-
-(comment
-  (defmixin test-mixin
-    (prepare (fn [c] c))
-    (entity-fields :updated-by))
-
-  (defmixin another-mixin
-    (prepare (fn [c] c))
-    (field-transforms [(pt/status-field :blah {:a 1})])
-    ))
-
