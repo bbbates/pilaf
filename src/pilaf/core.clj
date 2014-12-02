@@ -46,6 +46,9 @@
          (assoc m k args))))
    {} entity-def))
 
+(defn- multiple-forms [k forms]
+  (println k forms)
+  (map (fn [form] (cons k form)) forms))
 
 (defmacro defentity+
   "Extended version of korma's defentity macro.
@@ -72,7 +75,7 @@
        ~@(mapcat (fn [x]
                 (let [k-sym (-> x key name symbol)]
                   (if (#{'has-many 'belongs-to} k-sym)
-                    (partition 2 (flatten (interleave (repeat k-sym) (val x))))
+                    (multiple-forms k-sym (val x))
                     [(apply list
                              k-sym
                              (first (val x)))])))
