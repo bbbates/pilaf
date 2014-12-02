@@ -1,4 +1,4 @@
-(defproject pilaf "0.1.0-SNAPSHOT"
+(defproject pilaf "0.1.1-SNAPSHOT"
   :description "Pilaf: extensions and helper utilities for Korma"
   :url "http://github.com/bbbates/pilaf"
   :license {:name "Eclipse Public License"
