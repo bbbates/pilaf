@@ -6,6 +6,9 @@
 
 (defmethod entity-attr :default [[k v]] {k [v]})
 
+(defmethod entity-attr :has-many [[k v]] {k v})
+(defmethod entity-attr :belongs-to [[k v]] {k v})
+
 (defmethod entity-attr :prepare [[k v]] {k v})
 
 (defmethod entity-attr :transform [[k v]] {k v})
@@ -25,6 +28,9 @@
 (defmethod combine-args :transform [_ args] (if (seq (rest args)) `[[(apply comp [~@(reverse args)])]] [args]))
 (defmethod combine-args :prepare [_ args] (if (seq (rest args)) `[[(apply comp [~@(reverse args)])]] [args]))
 
+(defmethod combine-args :has-many [_ args] args)
+(defmethod combine-args :belongs-to [_ args] args)
+
 (defmethod combine-args :entity-fields [_ args] args `[#{~@(apply concat args)}])
 
 (def ^:dynamic *common-mixins* nil)
@@ -33,7 +39,11 @@
   [entity-def]
   (reduce
    (fn [m [attr & args]]
-     (assoc m (keyword (name attr)) (vec args)))
+     (let [k (keyword (name attr))
+           args (vec args)]
+       (if (#{:has-many :belongs-to} k)
+         (update-in m [k] (comp vec conj) args)
+         (assoc m k args))))
    {} entity-def))
 
 
@@ -58,11 +68,15 @@
                         (assoc m k (combine-args k vs)))
                       {} (apply merge-with concat (concat mixins-def-map entity-def-map)))]
     `(defentity
-      ~entity-name
-      ~@(map #(apply list
-                     (-> % key name symbol)
-                     (first (val %)))
-             comped-attrs))))
+       ~entity-name
+       ~@(mapcat (fn [x]
+                (let [k-sym (-> x key name symbol)]
+                  (if (#{'has-many 'belongs-to} k-sym)
+                    (partition 2 (flatten (interleave (repeat k-sym) (val x))))
+                    [(apply list
+                             k-sym
+                             (first (val x)))])))
+              comped-attrs))))
 
 (defn- quote-vals
   [m-to-quote]
