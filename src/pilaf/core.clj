@@ -47,7 +47,6 @@
    {} entity-def))
 
 (defn- multiple-forms [k forms]
-  (println k forms)
   (map (fn [form] (cons k form)) forms))
 
 (defmacro defentity+
